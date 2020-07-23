@@ -142,4 +142,4 @@ def stack(*args):
     return Pattern(m21_repr=stream)
 
 
-global_scope = {"concat":concat, "stack":stack}
+global_scope = {"concat":concat, "stack":stack, "print":print}

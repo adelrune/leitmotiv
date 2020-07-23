@@ -14,7 +14,7 @@ block: LBR _NL* (expr _NL+)* _NL* RBR
 ?comparison: arith_expr (comp_op arith_expr)*
 
 comp_op: "<"|">"|"=="|">="|"<="|"<>"|"!="|"is"|"is" "not"
-?arith_expr: term (("+"|"-") term)*
+!?arith_expr: term (("+"|"-") term)*
 ?term: factor (("*"|"/"|"%"|"//") factor)*
 ?factor: (minus) factor | molecule
 
@@ -30,7 +30,7 @@ side_effect_tok.3: "->"
 ?atom: var | number | string | abc_def
 
 arguments: argvalue ("," argvalue)*
-?argvalue: factor
+?argvalue: expr
 
 abc_def : "abc" STRING|LONG_STRING
 var.2 : CNAME
