@@ -1,0 +1,33 @@
+# séquence louche
+brbr = fn (seq, transpo) {
+     seq.transpose(transpo)
+}
+seq = abc"(3E/2b/2a/2z fg'a"
+!seq
+
+seq3 = brbr(seq, 5)
+
+!seq3
+
+# séquence louche transposée d'un ton
+trans_seq = seq.transpose(2)
+!trans_seq
+
+# exportation
+trans_seq.to_midi("transposed.mid")
+trans_seq.to_xml("transposed.xml")
+
+# appel de méthode avec effet de bord
+
+seq2 = abc"d e"
+seq2->transpose(2)
+!seq2
+
+bbb = concat(seq, trans_seq, seq2)
+!bbb
+
+ccc = stack(seq, trans_seq)
+
+!ccc
+
+ccc.to_midi("ccc.mid")

@@ -1,0 +1,14 @@
+# fonction
+transp_and_add_b = fn(seq, transpo) {
+     a = abc"b"
+     concat(seq.transpose(transpo), a)
+}
+
+
+seq = transp_and_add_b(abc"cde", 3)
+!seq
+
+to_transp = abc"efg"
+
+seq2 = transp_and_add_b(to_transp,2)
+!seq2

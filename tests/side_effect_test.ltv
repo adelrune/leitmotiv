@@ -1,0 +1,3 @@
+seq2 = abc"d e"
+seq2->transpose(3)
+!seq2

@@ -1,0 +1,7 @@
+*.*~
+.projectile
+*.mid
+*.xml
+*.abc
+*.mxl
+__pycache__/
