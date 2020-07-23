@@ -87,14 +87,21 @@ class LTVInterpreter:
         elif tokens.data == "var":
             return self.find_in_context(tokens.children[0].value)
 
-        elif tokens.data == "arith_expr":
+
+        elif tokens.data == "term" or tokens.data == "arith_expr":
             result = self.get_terminal_value(tokens.children[0]).value
-            ops = {"+":lambda x, y: x+y, "-": lambda x, y: x-y}
+            ops = {"+":lambda x, y: x+y, "-": lambda x, y: x-y, "*":lambda x, y: x*y, "/": lambda x, y: x/y, "//": lambda x, y: x//y, "/": lambda x, y: x/y, "%": lambda x, y: x%y}
             for i in range(1, len(tokens.children), 2):
-                op = tokens.children[i].value
+                # because of parsing priority stuff, integer division has to be a rule and so is a Tree object
+                op = tokens.children[i]
+                if type(op) == lark.Tree:
+                    op = op.children[0].value
+                else:
+                    op = op.value
                 operand = self.get_terminal_value(tokens.children[i+1]).value
                 result = ops[op](result, operand)
             return Reference(value = result)
+
 
         elif tokens.data == "abc_def":
             return Reference(value=ltv_builtins.Pattern(ast.literal_eval(tokens.children[0].value)))

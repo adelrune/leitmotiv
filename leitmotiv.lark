@@ -15,8 +15,8 @@ block: LBR _NL* (expr _NL+)* _NL* RBR
 
 comp_op: "<"|">"|"=="|">="|"<="|"<>"|"!="|"is"|"is" "not"
 !?arith_expr: term (("+"|"-") term)*
-?term: factor (("*"|"/"|"%"|"//") factor)*
-?factor: (minus) factor | molecule
+!?term: factor (("*"|"/"|"%"|integer_div) factor)*
+?factor: minus factor | molecule
 
 ?molecule:
          | "fn" "(" [arguments] ")" block -> fn_def
@@ -38,8 +38,8 @@ var.2 : CNAME
 string: STRING | LONG_STRING
 number: DEC_NUMBER | FLOAT_NUMBER
 
-minus: "-"
-
+!minus: "-"
+!integer_div.2: "//"
 LBR: "{"
 RBR: "}"
 
