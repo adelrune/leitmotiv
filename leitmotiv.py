@@ -87,10 +87,24 @@ class LTVInterpreter:
         elif tokens.data == "var":
             return self.find_in_context(tokens.children[0].value)
 
-
-        elif tokens.data == "term" or tokens.data == "arith_expr":
+        elif tokens.data == "term" or tokens.data == "arith_expr" or tokens.data == "comparison":
             result = self.get_terminal_value(tokens.children[0]).value
-            ops = {"+":lambda x, y: x+y, "-": lambda x, y: x-y, "*":lambda x, y: x*y, "/": lambda x, y: x/y, "//": lambda x, y: x//y, "/": lambda x, y: x/y, "%": lambda x, y: x%y}
+            ops = {
+                "+":lambda x, y: x+y,
+                "-": lambda x, y: x-y,
+                "*":lambda x,y: x*y,
+                "/": lambda x,y: x/y,
+                "//": lambda x,y: x//y,
+                "/": lambda x,y: x/y,
+                "%": lambda x,y: x%y,
+                "<": lambda x,y: x<y,
+                "<=": lambda x,y: x<=y,
+                ">": lambda x,y: x>y,
+                ">=": lambda x,y: x>=y,
+                "==": lambda x,y: x==y,
+                "!=": lambda x,y: x!=y
+            }
+
             for i in range(1, len(tokens.children), 2):
                 # because of parsing priority stuff, integer division has to be a rule and so is a Tree object
                 op = tokens.children[i]

@@ -11,9 +11,11 @@ block: LBR _NL* (expr _NL+)* _NL* RBR
 ?or_test: and_test ("or" and_test)*
 ?and_test: not_test ("and" not_test)*
 ?not_test: "not" not_test | comparison
-?comparison: arith_expr (comp_op arith_expr)*
+!?comparison: arith_expr (comp_op arith_expr)*
 
-comp_op: "<"|">"|"=="|">="|"<="|"<>"|"!="|"is"|"is" "not"
+!?comp_op: goe|loe|"<"|">"|"=="|"!="
+!goe.2: ">="
+!loe.2: "<="
 !?arith_expr: term (("+"|"-") term)*
 !?term: factor (("*"|"/"|"%"|integer_div) factor)*
 ?factor: minus factor | molecule
