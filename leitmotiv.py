@@ -87,7 +87,11 @@ class LTVInterpreter:
         elif tokens.data == "var":
             return self.find_in_context(tokens.children[0].value)
 
-        elif tokens.data == "term" or tokens.data == "arith_expr" or tokens.data == "comparison":
+        elif tokens.data == "not_test":
+            negated = not self.get_terminal_value(tokens.children[-1]).value
+            return Reference(value=negated)
+
+        elif tokens.data in {"term", "arith_expr", "comparison", "and_test", "or_test"}:
             result = self.get_terminal_value(tokens.children[0]).value
             ops = {
                 "+":lambda x, y: x+y,
@@ -102,7 +106,9 @@ class LTVInterpreter:
                 ">": lambda x,y: x>y,
                 ">=": lambda x,y: x>=y,
                 "==": lambda x,y: x==y,
-                "!=": lambda x,y: x!=y
+                "!=": lambda x,y: x!=y,
+                "and": lambda x,y: x and y,
+                "or": lambda x,y: x or y,
             }
 
             for i in range(1, len(tokens.children), 2):
