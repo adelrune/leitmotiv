@@ -43,3 +43,18 @@ while a < 5 {
 }
 """
     ) == mk_val(5)
+
+def test_list():
+    assert ltv_eval(
+        """
+a = 0
+b = [2,
+    while a < 5 {
+        a = a + 1
+    },
+    if 1 {
+        4
+    }
+][1]
+"""
+    ) == mk_val(5)

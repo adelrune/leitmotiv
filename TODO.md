@@ -5,13 +5,14 @@
 - xml import
 
 ## Language
-- lists
 - for loop
 
 ## pattern features
 - apply_rythm
 - truncate
 - diatonic_transpose
+- sequence lenght (in notes and in time)
+- glue_until_equal
 
 # DONE
 
@@ -25,6 +26,7 @@
 - basic arithmetic
 - conditions
 - loops
+- lists
 
 ## pattern features
 - concat

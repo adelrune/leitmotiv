@@ -6,4 +6,4 @@ while a < 5 {
     a = a + 1
 }
 
-!seq /home/guillaume/code/leitmotiv/tests/loops.ltv_artifacts/6712452001.svg
+!seq

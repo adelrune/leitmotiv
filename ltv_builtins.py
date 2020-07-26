@@ -40,20 +40,22 @@ class ltv_method:
         # overwrite with the wrapped function
         setattr(owning_class, name, wrapper)
 
-class LtvObject:
+class LTVObject:
     ltv_methods = []
     def __init__(self):
         """builds the scope object of the methods accessible from leitmotiv"""
         self.scope = {method: getattr(self,method) for method in self.ltv_methods}
 
-class ABCHeader(LtvObject):
-    def __init__(self):
-        self.X = 1
-        self.L = "1/4"
-        self.K = "C"
+class LTVList(LTVObject):
+    ltv_methods = []
+    def __init__(self, items):
+        self.items = items
         super().__init__()
 
-class Pattern(LtvObject):
+    def __getitem__(self, key):
+        return self.items[key]
+
+class Pattern(LTVObject):
     def __init__(self, abcstring=None, m21_repr=None):
         self.id = random.randrange(0,10000000)
         self.m21_repr = m21_repr
@@ -105,7 +107,6 @@ class Pattern(LtvObject):
     def update_abc(self):
         xml_path = f"{artifact_folder}/{self.id}.xml"
         self.to_xml(xml_path)
-        print(__file__)
         abc = check_output(["python", __file__.split("ltv_builtins.py")[0]+"xml2abc.py", f"{xml_path}"]).decode("utf-8")
         self.abcstring = header_stripped_abc = "\n".join(filter(lambda line: not re.match("[A-Z]:.*", line), abc.split("\n")))
         self.write_abc_artifact()

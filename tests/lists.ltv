@@ -1,0 +1,10 @@
+l = [
+  abc"b2b4b8",
+  abc"b/2b/4b/8",
+  [3,4]
+]
+
+!l[0] tests/lists.ltv_artifacts/9321109001.svg
+!l[1] tests/lists.ltv_artifacts/9253451001.svg
+
+print(l[2][1])

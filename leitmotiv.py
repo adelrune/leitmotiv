@@ -161,6 +161,14 @@ class LTVInterpreter:
                     # if you are in else, eval the next block
                     return Reference(value=self.eval_block(tokens.children[i+1]))
 
+        elif tokens.data == "list":
+            list_items = self.get_terminal_value(tokens.children[0])
+            return Reference(value=ltv_builtins.LTVList(list_items))
+        elif tokens.data == "list_access":
+            lst = self.get_terminal_value(tokens.children[0]).value
+            idx = self.get_terminal_value(tokens.children[1]).value
+            return lst[idx]
+
         elif tokens.data == "while_expr":
             last_val = None
             while self.get_terminal_value(tokens.children[0]).value:

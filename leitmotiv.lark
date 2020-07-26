@@ -3,8 +3,9 @@ start: (expr _NL)+
 
 block: LBR _NL* (expr _NL+)* _NL* RBR
 
+// display is slightly broken, its not able to match or_test and instead matches molecule, thats because otherwise it becomes difficult to know if a bare path is a division
 ?expr: or_test "=" or_test -> assignation
-    | "!" var PATH? -> display
+    | "!" molecule PATH? -> display
     | if_expr
     | while_expr
     | or_test
@@ -30,13 +31,18 @@ while_expr: "while" or_test block
          | molecule "(" [arguments] ")" -> func_call
          | molecule side_effect_tok CNAME -> side_effect_call
          | molecule "." CNAME -> getattr
+         | list_access
+         | list_def
          | atom
+
+list_access: molecule "[" molecule "]"
+list_def.2: "[" [arguments] "]" -> list
 
 side_effect_tok.3: "->"
 
 ?atom: var | number | string | abc_def
 
-arguments: argvalue ("," argvalue)*
+arguments: argvalue (_NL* "," argvalue _NL*)*
 ?argvalue: expr
 
 abc_def : "abc" STRING|LONG_STRING
