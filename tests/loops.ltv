@@ -1,0 +1,9 @@
+seq = abc"cde"
+a = 0
+
+while a < 5 {
+    seq->transpose(1)
+    a = a + 1
+}
+
+!seq /home/guillaume/code/leitmotiv/tests/loops.ltv_artifacts/6712452001.svg

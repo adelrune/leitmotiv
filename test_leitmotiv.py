@@ -33,3 +33,13 @@ if a == 6 {
     0
 }"""
     ) == mk_val(0)
+
+def test_loop():
+    assert ltv_eval(
+        """
+a = 0
+while a < 5 {
+    a = a + 1
+}
+"""
+    ) == mk_val(5)

@@ -11,3 +11,14 @@ if_fn = fn(a) {
 print(if_fn(6))
 print(if_fn(4))
 print(if_fn(634))
+# if is an expression
+a = 6
+print(
+    if a == 6 {
+       1
+    } elif a == 4 {
+       0
+    } else {
+       100000
+    }
+)

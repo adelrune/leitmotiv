@@ -11,6 +11,7 @@ class Reference:
     def __init__(self, identifier=None, value=None):
         self.identifier = identifier
         self.value = value
+        self.origin_context = None
     def __repr__(self):
         return f"({self.identifier} -> {self.value})"
     def __eq__(self, other):
@@ -58,6 +59,7 @@ class LTVInterpreter:
         while current_ctx >= 0:
             if ident in self.context[current_ctx]:
                 ref.value = self.context[current_ctx][ident]
+                ref.origin_context = current_ctx
                 return ref
             current_ctx -=1
         return ref
@@ -77,7 +79,8 @@ class LTVInterpreter:
         elif tokens.data == "assignation":
             l_value = self.get_terminal_value(tokens.children[0])
             r_value = self.get_terminal_value(tokens.children[1])
-            self.context[self.context_level][l_value.identifier] = r_value.value
+            ctx_level = self.context_level if l_value.origin_context is None else l_value.origin_context
+            self.context[ctx_level][l_value.identifier] = r_value.value
             return r_value
 
         elif tokens.data == "display":
@@ -157,6 +160,12 @@ class LTVInterpreter:
                 else:
                     # if you are in else, eval the next block
                     return Reference(value=self.eval_block(tokens.children[i+1]))
+
+        elif tokens.data == "while_expr":
+            last_val = None
+            while self.get_terminal_value(tokens.children[0]).value:
+                last_val = self.eval_block(tokens.children[1])
+            return Reference(value=last_val)
 
         elif tokens.data == "func_call":
             function = self.get_terminal_value(tokens.children[0]).value

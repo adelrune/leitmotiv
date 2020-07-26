@@ -5,8 +5,8 @@
 - xml import
 
 ## Language
-- loops
 - lists
+- for loop
 
 ## pattern features
 - apply_rythm
@@ -24,6 +24,7 @@
 - function
 - basic arithmetic
 - conditions
+- loops
 
 ## pattern features
 - concat
