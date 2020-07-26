@@ -1,0 +1,13 @@
+if_fn = fn(a) {
+    if a == 6 {
+       1
+    } elif a == 4 {
+       0
+    } else {
+       100000
+    }
+}
+
+print(if_fn(6))
+print(if_fn(4))
+print(if_fn(634))

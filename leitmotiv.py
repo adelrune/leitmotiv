@@ -18,22 +18,16 @@ class Reference:
 
 class LTVFunc:
     def __init__(self, tokens, arguments, interpreter):
-        self.tokens = tokens
+        self.block = tokens
         self.arg_list = [argument.identifier for argument in arguments]
         self.interpreter = interpreter
         contexts = list(filter(lambda x: x is ltv_builtins.global_scope, self.interpreter.context))
         self.closure_context = {ident: ctx[ident] for ctx in contexts for ident in ctx}
 
     def __call__(self, *args, **kwargs):
+        # adds the arguments to the context then interpret the block
         argument_context = {self.arg_list[i]: arg for i, arg in enumerate(args)}
-        self.interpreter.context.append({**argument_context, **self.closure_context})
-        self.interpreter.context_level +=1
-        last_value = None
-        for tok in self.tokens:
-            last_value = self.interpreter.get_terminal_value(tok)
-        self.interpreter.context.pop()
-        self.interpreter.context_level -=1
-        return last_value.value
+        return self.interpreter.eval_block(self.block, additionnal_ctx={**argument_context, **self.closure_context})
 
 class LTVInterpreter:
     def __init__(self):
@@ -43,6 +37,20 @@ class LTVInterpreter:
         self.grammar = open(__file__.split(".py")[0]+".lark", "r").read()
         self.parser = lark.Lark(self.grammar, propagate_positions=True)
         self.artifact_folder = "tmp_artifacts"
+
+    def eval_block(self, tokens, additionnal_ctx=None):
+        # removes the "{" and "}" tokens
+        if additionnal_ctx is None:
+            additionnal_ctx = {}
+        self.context.append(additionnal_ctx)
+        tokens = tokens.children[1:-1]
+        self.context_level +=1
+        last_value = None
+        for tok in tokens:
+            last_value = self.get_terminal_value(tok)
+        self.context.pop()
+        self.context_level -=1
+        return last_value.value
 
     def find_in_context(self, ident):
         ref = Reference(identifier=ident)
@@ -131,8 +139,24 @@ class LTVInterpreter:
 
         elif tokens.data == "fn_def":
             args = self.get_terminal_value(tokens.children[0])
-            instructions = tokens.children[1].children[1:-1]
+            instructions = tokens.children[1]
             return Reference(value=LTVFunc(instructions, args, self))
+
+        elif tokens.data == "block":
+            return Reference(self.eval_block(tokens))
+
+        elif tokens.data == "if_expr":
+            i = 0
+            while i < len(tokens.children):
+                # if we are in if or elif, test the next value for truthiness
+                if tokens.children[i].value in ["if", "elif"]:
+                    if self.get_terminal_value(tokens.children[i+1]).value:
+                        # if it is, eval the next block
+                        return Reference(value=self.eval_block(tokens.children[i+2]))
+                    i+=3
+                else:
+                    # if you are in else, eval the next block
+                    return Reference(value=self.eval_block(tokens.children[i+1]))
 
         elif tokens.data == "func_call":
             function = self.get_terminal_value(tokens.children[0]).value
@@ -149,7 +173,6 @@ class LTVInterpreter:
             # source->attr
             func = source.scope[attr]
             # calls the function with all its passed arguments and the side_effect=True flag
-            print(func)
             return Reference(value=lambda *arg, **kwargs: func(side_effect=True, *arg, **kwargs))
 
         elif tokens.data == "number":

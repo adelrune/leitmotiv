@@ -22,3 +22,14 @@ def test_operations():
     assert ltv_eval("not not not not not 1 - 1") == mk_val(True)
     assert ltv_eval("1 or 0") == mk_val(1)
     assert ltv_eval("1 and 0") == mk_val(0)
+
+def test_cond():
+    assert ltv_eval(
+        """
+a = 4 + 3
+if a == 6 {
+    1
+} else {
+    0
+}"""
+    ) == mk_val(0)
