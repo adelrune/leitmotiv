@@ -5,7 +5,7 @@ block: LBR _NL* (expr _NL+)* _NL* RBR
 
 // display is slightly broken, its not able to match or_test and instead matches molecule, thats because otherwise it becomes difficult to know if a bare path is a division
 ?expr: or_test "=" or_test -> assignation
-    | "!" molecule PATH? -> display
+    | "!" factor path? -> display
     | if_expr
     | while_expr
     | or_test
@@ -40,13 +40,15 @@ list_def.2: "[" [arguments] "]" -> list
 
 side_effect_tok.3: "->"
 
-?atom: var | number | string | abc_def
+?atom: var | number | string | abc_def | perc1_def
 
 arguments: argvalue (_NL* "," argvalue _NL*)*
 ?argvalue: expr
 
 abc_def : "abc" STRING|LONG_STRING
+perc1_def : "perc1" STRING|LONG_STRING
 var.2 : CNAME
+path: PATH
 
 string: STRING | LONG_STRING
 number: DEC_NUMBER | FLOAT_NUMBER

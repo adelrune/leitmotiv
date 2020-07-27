@@ -55,21 +55,27 @@ class LTVList(LTVObject):
     def __getitem__(self, key):
         return self.items[key]
 
+headers = {
+    "normal": {"pre_header":"%%bgcolor white", "header":"\nX:1\nL:1/4\nK:C\n"},
+    "perc1": {"pre_header":"""%%bgcolor white\n%%beginsvg\n<defs>\n<g id="xhead" class="stroke">\n<line y1="-2.5" y2="2.5" x1="-3.5" x2="3.5" style="stroke-width:0.75"></line>\n<line y1="-2.5" y2="2.5" x1="3.5" x2="-3.5" style="stroke-width:0.75"></line>\n</g>\n</defs>\n%%endsvg\n%%map shape key,C heads=xhead\n%%map shape key,E heads=xhead\n%%map shape key,F heads=xhead\n%%map shape key,G heads=xhead\n%%map shape key,A heads=xhead\n%%map shape key,B heads=xhead\n%%voicemap shape\n""","header":"X:1\nM:4/4\nL:1/4\nK:C clef=perc stafflines=1\n"}
+}
+
 class Pattern(LTVObject):
-    def __init__(self, abcstring=None, m21_repr=None):
+    def __init__(self, abcstring=None, m21_repr=None, header="normal"):
         self.id = random.randrange(0,10000000)
         self.m21_repr = m21_repr
         self.dirty_abc = abcstring is None
         self.musicxml_s = None
         self.abcstring = abcstring
-        self.header = "%%bgcolor white\nX:1\nL:1/4\nK:C\n"
+        self.pre_header = headers[header]["pre_header"]
+        self.header = headers[header]["header"]
         self.svgfile_s = None
-        self.abcfile_s = f"{artifact_folder}/{self.id}.abc"
+        self.abcfile_s = None
+        self.write_abc_artifact()
         if self.m21_repr is None:
             # generates the abc file artifact
-            self.write_abc_artifact()
             # gets the music21 IR from the abc
-            self.m21_repr = music21.converter.parse(self.abcfile_s)
+            self.m21_repr = music21.converter.parse(self.header+self.abcstring, format="abc")
 
         super().__init__()
 
@@ -100,7 +106,8 @@ class Pattern(LTVObject):
 
 
     def write_abc_artifact(self):
-        open(self.abcfile_s,"w").write(self.header+self.abcstring)
+        self.abcfile_s = f"{artifact_folder}/{self.id}.abc"
+        open(self.abcfile_s,"w").write(self.pre_header+self.header+self.abcstring)
 
 
 
@@ -112,6 +119,9 @@ class Pattern(LTVObject):
         self.write_abc_artifact()
 
     def generate_image(self):
+
+        if self.abcfile_s is None:
+            self.abcfile_s = f"{artifact_folder}/{self.id}.abc"
 
         if self.svgfile_s is None or self.dirty_abc:
 

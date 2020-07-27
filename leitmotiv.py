@@ -84,7 +84,6 @@ class LTVInterpreter:
             return r_value
 
         elif tokens.data == "display":
-
             pattern = self.get_terminal_value(tokens.children[0])
             img_name = pattern.value.generate_image()
             if self.program_lines is None:
@@ -136,6 +135,9 @@ class LTVInterpreter:
 
         elif tokens.data == "abc_def":
             return Reference(value=ltv_builtins.Pattern(ast.literal_eval(tokens.children[0].value)))
+
+        elif tokens.data == "perc1_def":
+            return Reference(value=ltv_builtins.Pattern(ast.literal_eval(tokens.children[0].value), header="perc1"))
 
         elif tokens.data == "arguments":
             return [self.get_terminal_value(child) for child in tokens.children]
