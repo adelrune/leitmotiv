@@ -2,7 +2,7 @@
 # coding=latin-1
 '''
 Copyright (C) 2012-2018: W.G. Vree
-Contributions: M. Tarenskeen, N. Liberg, Paul Villiger, Janus Meuris, Larry Myerscough,
+Contributions: M. Tarenskeen, N. Liberg, Paul Villiger, Janus Meuris, Larry Myerscough, 
 Dick Jackson, Jan Wybren de Jong, Mark Zealey.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the
@@ -17,7 +17,7 @@ try:    import xml.etree.cElementTree as E
 except: import xml.etree.ElementTree as E
 import os, sys, types, re, math
 
-VERSION = 139
+VERSION = 142
 
 python3 = sys.version_info.major > 2
 if python3:
@@ -111,7 +111,7 @@ def info (s, warn=1): sys.stderr.write ((warn and '-- ' or '') + s + '\n')
 class Measure:
     def __init__ (s, p):
         s.reset ()
-        s.ixp = p       # part number
+        s.ixp = p       # part number  
         s.ixm = 0       # measure number
         s.mdur = 0      # measure duration (nominal metre value in divisions)
         s.divs = 0      # number of divisions per 1/4
@@ -247,7 +247,7 @@ class Music:
                     x = p.str           # p.str is the ABC barline string
                     if m.lline:         # append begin of repeat, m.lline == ':'
                         x = (x + m.lline).replace (':|:','::').replace ('||','|')
-                    if s.nvlt == 3:     # add volta number only to lowest voice in part 0
+                    if s.nvlt == 3:     # add volta number only to lowest voice in part 0 
                         if m.ixp + v == min (s.vnums): x += m.lnum
                     elif m.lnum:        # new behaviour with I:repbra 0
                         x += m.lnum     # add volta number(s) or text to all voices
@@ -573,7 +573,7 @@ def outVoice (measure, divs, im, ip, unitL):    # note/elem objects of one measu
         nx = measure [ix]
         if isinstance (nx, Note) and nx.fact and not nx.grace:
             ix, tupcnt = insTup (ix, measure, (1, 1))   # read one tuplet, insert annotation(s)
-        ix += 1
+        ix += 1 
     vs = []
     for nx in measure:
         if isinstance (nx, Note):
@@ -610,8 +610,8 @@ def sortMeasure (voice, m):
     v = []
     rs = []                            # holds rests in between notes
     for i, nx in enumerate (voice):    # establish sequentiality
-        if nx.tijd > time:             # fill hole with invisble rest
-            v.append (Note (nx.tijd - time, 'x'))
+        if nx.tijd > time and chkbug (nx.tijd - time, m):
+            v.append (Note (nx.tijd - time, 'x'))   # fill hole with invisble rest
             rs.append (len (v) - 1)
         if isinstance (nx, Elem):
             if nx.tijd < time: nx.tijd = time # shift elems without duration to where they fit
@@ -651,7 +651,7 @@ def sortMeasure (voice, m):
 def getPartlist (ps):   # correct part-list (from buggy xml-software)
     xs = [] # the corrected part-list
     e = []  # stack of opened part-groups
-    for x in ps: # insert missing stops, delete double starts
+    for x in list (ps): # insert missing stops, delete double starts
         if x.tag ==  'part-group':
             num, type = x.get ('number'), x.get ('type')
             if type == 'start':
@@ -803,7 +803,7 @@ def perc2map (abcIn):
             abc.append (x)
             if 'perc' in x and 'map=' not in x: x += ' map=perc';
             if 'map=perc' in x and len (maps [id]) > 0: abc.append ('%%voicemap perc' + id);
-            if 'map=off' in x: abc.append ('%%voicemap');
+            if 'map=off' in x: abc.append ('%%voicemap');            
         else:
             abc.append (x)
     return '\n'.join (abc) + '\n'
@@ -814,6 +814,11 @@ def addoct (ptc, o):    # xml staff step, xml octave number
     if o > 5: p = p + (o-5) * "'"
     if o < 4: p = p + (4-o) * ","
     return p            # abc pitch == abc note without accidental
+
+def chkbug (dt, m):
+    if dt > m.divs / 16: return 1   # duration should be > 1/64 note
+    info ('MuseScore bug: incorrect duration, smaller then 1/64! in measure %d, part %d' % (m.ixm, m.ixp))
+    return 0
 
 #----------------
 # parser
@@ -877,7 +882,7 @@ class Parser:
                 s.slurBuf [n] = (type2, v2, note2, grace)
         else:                               # unmatched slur, put in dict
             s.slurBuf [n] = (type2, v2, note2, grace)
-
+    
     def doNotations (s, note, nttn, isTab):
         for key, val in s.ornaments:
             if nttn.find (key) != None: note.before += [val]  # just concat all ornaments
@@ -1106,7 +1111,7 @@ class Parser:
                 strings = stfdtl.findall ('staff-tuning')
                 if strings:
                     tuning = [st.findtext ('tuning-step') + st.findtext ('tuning-octave') for st in strings]
-                    cs += ' strings=%s' % ','.join (tuning)
+                    cs += ' strings=%s' % ','.join (tuning) 
                 capo = stfdtl.findtext ('capo')
                 if capo: cs += ' capo=%s' % capo
             s.curClef [n] = cs                  # keep track of current clef (for percmap)
@@ -1257,7 +1262,7 @@ class Parser:
         for d in degrees:   # chord alterations
             kind += altmap.get (d.findtext ('degree-alter'),'') + d.findtext ('degree-value','')
         kind = kind.replace ('79','9').replace ('713','13').replace ('maj6','6')
-        bass = e.findtext ('bass/bass-step','') + altmap.get (e.findtext ('bass/bass-alter'),'')
+        bass = e.findtext ('bass/bass-step','') + altmap.get (e.findtext ('bass/bass-alter'),'') 
         s.msc.appendElem (vt, '"%s%s%s%s%s"' % (root, alt, kind, sus, bass and '/' + bass), 1)
 
     def doBarline (s, e):       # 0 = no repeat, 1 = begin repeat, 2 = end repeat
@@ -1420,7 +1425,7 @@ class Parser:
             ds = [(nt, step, midi, head) for (vd, nt), (step, midi, head) in ks if v == vd] # map perc notes
             id = s.vceInst.get (v, '')  # get the instrument-id for part with multiple instruments
             if id in instr:             # id is defined as midi-instrument in part-list
-                   xs.append ((vabc, instr [id] + ds))  # get midi settings for id
+                   xs.append ((vabc, instr [id] + ds))  # get midi settings for id 
             else:  xs.append ((vabc, defInstr   + ds))  # only one instrument for this part
         xs.sort ()  # put abc voices in order
         s.midiMap.extend ([midi for v, midi in xs])
@@ -1464,7 +1469,7 @@ class Parser:
                 herhaal, lbrk = 0, ''
                 s.msr.reset ()
                 s.curalts = {}  # passing accidentals are reset each measure
-                es = list(maat)
+                es = list (maat)
                 for i, e in enumerate (es):
                     if   e.tag == 'note':       s.doNote (e)
                     elif e.tag == 'attributes': s.doAttr (e)
@@ -1474,14 +1479,14 @@ class Parser:
                     elif e.tag == 'barline': herhaal = s.doBarline (e)
                     elif e.tag == 'backup':
                         dt = int (e.findtext ('duration'))
-                        s.msc.incTime (-dt)
+                        if chkbug (dt, s.msr): s.msc.incTime (-dt)
                     elif e.tag == 'forward':
                         dt = int (e.findtext ('duration'))
-                        s.msc.incTime (dt)
+                        if chkbug (dt, s.msr): s.msc.incTime (dt)
                     elif e.tag == 'print':  lbrk = s.doPrint (e)
                 s.msc.addBar (lbrk, s.msr)
                 divisions.append (s.msr.divs)
-                if   herhaal == 1:
+                if herhaal == 1:
                     herhaalMaat = s.msr.ixm
                     s.msr.ixm += 1
                 elif herhaal == 2:
@@ -1509,7 +1514,7 @@ class Parser:
 if __name__ == '__main__':
     from optparse import OptionParser
     from glob import glob
-    from zipfile import ZipFile
+    from zipfile import ZipFile 
     ustr = '%prog [-h] [-u] [-m] [-c C] [-d D] [-n CPL] [-b BPL] [-o DIR] [-v V]\n'
     ustr += '[-x] [-p PFMT] [-t] [-s] [-i] [--v1] [--noped] [--stems] <file1> [<file2> ...]'
     parser = OptionParser (usage=ustr, version=str(VERSION))

@@ -53,7 +53,7 @@ path: PATH
 string: STRING | LONG_STRING
 number: DEC_NUMBER | FLOAT_NUMBER
 
-!minus: "-"
+!minus.2: "-"
 !integer_div.2: "//"
 LBR: "{"
 RBR: "}"

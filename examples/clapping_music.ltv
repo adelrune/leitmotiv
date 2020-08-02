@@ -1,2 +1,16 @@
-clapping_pattern = perc1"|: B/2B/2B/2 z/2 B/2B/2 z/2 B/2 z/2 B/2B/2 z/2 :|"
+clapping_pattern = perc1"[M:6/4]|: B/2B/2B/2 z/2 B/2B/2 z/2 B/2 z/2 B/2B/2 z/2 :|"
 !clapping_pattern
+
+counter = 0
+clapping_patterns = []
+
+while counter <= clapping_pattern.count_notes() {
+    clapping_patterns.append(stack(clapping_pattern, clapping_pattern.shift(counter)))
+    counter = counter + 1
+}
+
+!clapping_patterns[1]
+
+clapping_music = concat(clapping_patterns)
+
+!clapping_music

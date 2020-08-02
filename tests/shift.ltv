@@ -1,0 +1,7 @@
+seq = abc"cdefg"
+
+!seq
+
+seq_s = seq.shift(-1)
+
+!seq_s

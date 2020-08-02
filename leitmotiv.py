@@ -5,17 +5,8 @@ import random
 from subprocess import run
 import os
 import shutil
+from ltv_builtins import Reference
 import ltv_builtins
-
-class Reference:
-    def __init__(self, identifier=None, value=None):
-        self.identifier = identifier
-        self.value = value
-        self.origin_context = None
-    def __repr__(self):
-        return f"({self.identifier} -> {self.value})"
-    def __eq__(self, other):
-        return self.identifier == other.identifier and self.value == other.value
 
 class LTVFunc:
     def __init__(self, tokens, arguments, interpreter):
@@ -67,9 +58,7 @@ class LTVInterpreter:
     def get_terminal_value(self, tokens):
 
         if type(tokens) == lark.lexer.Token:
-            if tokens.type == "CNAME":
-                return self.find_in_context(tokens.value)
-
+            return self.find_in_context(tokens.value)
         if tokens.data == "getattr":
             source = self.get_terminal_value(tokens.children[0]).value
             attr = self.get_terminal_value(tokens.children[1]).identifier
@@ -140,7 +129,7 @@ class LTVInterpreter:
             return Reference(value=ltv_builtins.Pattern(ast.literal_eval(tokens.children[0].value), header="perc1"))
 
         elif tokens.data == "arguments":
-            return [self.get_terminal_value(child) for child in tokens.children]
+            return list(filter(None, [self.get_terminal_value(child) for child in tokens.children]))
 
         elif tokens.data == "fn_def":
             args = self.get_terminal_value(tokens.children[0])
@@ -172,6 +161,7 @@ class LTVInterpreter:
             return lst[idx]
 
         elif tokens.data == "while_expr":
+
             last_val = None
             while self.get_terminal_value(tokens.children[0]).value:
                 last_val = self.eval_block(tokens.children[1])
@@ -206,6 +196,9 @@ class LTVInterpreter:
         elif tokens.data == "string":
             return Reference(value=ast.literal_eval(tokens.children[0].value))
 
+        elif tokens.data == "molecule":
+            """this is weird and patchy"""
+            return None
 
 
     def evaluate_file(self, fname):
