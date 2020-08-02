@@ -70,7 +70,6 @@ class LTVList(LTVObject):
 
     @ltv_method
     def append(self, el):
-        print(el)
         self.items.append(Reference(value=el))
 
 headers = {

@@ -5,7 +5,7 @@ counter = 0
 clapping_patterns = []
 
 while counter <= clapping_pattern.count_notes() {
-    clapping_patterns.append(stack(clapping_pattern, clapping_pattern.shift(counter)))
+    clapping_patterns.append(stack(clapping_pattern, clapping_pattern.shift(-counter)))
     counter = counter + 1
 }
 
