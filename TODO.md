@@ -14,8 +14,11 @@
 - glue_until_equal
 
 ## Move away from music21 as a backend
-- ABC notation parser
-- internal representation of notes and rests
+- concat
+- stack
+- sequence lenght (in notes and in time)
+- shift
+
 
 # DONE
 
@@ -36,3 +39,7 @@
 - stack
 - sequence lenght (in notes and in time)
 - shift
+
+## Move away from music21 as a backend
+- ABC notation parser : stolen from abc2xml.py
+- internal representation of notes and rests

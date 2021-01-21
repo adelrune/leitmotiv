@@ -1942,6 +1942,69 @@ class MusicXml:
                 addElem (misc, mf, lev + 1)
         if mf != 0: addElem (parent, misc, lev)
 
+
+    def give_me_the_voices(s, abc_string, rOpt=False, bOpt=False, fOpt=False):
+        """somewhat cargo cult method that gives me the damn abc internal representation"""
+        abctext = abc_string.replace ('[I:staff ','[I:staff')  # avoid false beam breaks
+        s.reset (fOpt)
+        header, voices = splitHeaderVoices (abctext)
+        ps = []
+        vcelyrssss = []
+        try:
+            lbrk_insert = 0 if re.search (r'I:linebreak\s*([!$]|none)|I:continueall\s*(1|true)', header) else bOpt
+            hs = abc_header.parseString (header) if header else ''
+            print(hs)
+            for id, voice in voices:
+                if lbrk_insert:                                 # insert linebreak at EOL
+                    r1 = re.compile (r'\[[wA-Z]:[^]]*\]')       # inline field
+                    has_abc = lambda x: r1.sub ('', x).strip () # empty if line only contains inline fields
+                    voice = '\n'.join ([balk.rstrip ('$!') + '$' if has_abc (balk) else balk for balk in voice.splitlines ()])
+                prevLeftBar = None      # previous voice ended with a left-bar symbol (double repeat)
+                s.orderChords = s.fOpt and ('tab' in voice [:200] or [x for x in hs if x.t[0] == 'K' and 'tab' in x.t[1]])
+                vce = abc_voice.parseString (voice).asList ()
+                lyr_notes = []          # remember notes between lyric blocks
+                for m in vce:           # all measures
+                    for e in m:         # all abc-elements
+                        if e.name == 'lyr_blk':         # -> e.objs is list of lyric lines
+                            lyr = [line.objs for line in e.objs]    # line.objs is listof syllables
+                            alignLyr (lyr_notes, lyr)   # put all syllables into corresponding notes
+                            lyr_notes = []
+                        else:
+                            lyr_notes.append (e)
+                if not vce:             # empty voice, insert an inline field that will be rejected
+                    vce = [[pObj ('inline', ['I', 'empty voice'])]]
+                if prevLeftBar:
+                    vce[0].insert (0, prevLeftBar)  # insert at begin of first measure
+                    prevLeftBar = None
+                if vce[-1] and vce[-1][-1].name == 'lbar':  # last measure ends with an lbar
+                    prevLeftBar = vce[-1][-1]
+                    if len (vce) > 1:   # vce should not become empty (-> exception when taking vcelyr [0][0])
+                        del vce[-1]     # lbar was the only element in measure vce[-1]
+                vcelyr = vce
+                elem1 = vcelyr [0][0]   # the first element of the first measure
+                if  elem1.name == 'inline'and elem1.t[0] == 'V':    # is a voice definition
+                    voicedef = elem1
+                    del vcelyr [0][0]   # do not read voicedef twice
+                else:
+                    voicedef = ''
+                ps.append ((id, voicedef, vcelyr))
+                vcelyrssss.append(vcelyr)
+        except ParseException as err:
+            if err.loc > 40:    # limit length of error message, compatible with markInputline
+                err.pstr = err.pstr [err.loc - 40: err.loc + 40]
+                err.loc = 40
+            xs = err.line[err.col-1:]
+            info (err.line, warn=0)
+            info ((err.col-1) * '-' + '^', warn=0)
+            if   re.search (r'\[U:', xs):
+                info ('Error: illegal user defined symbol: %s' % xs[1:], warn=0)
+            elif re.search (r'\[[OAPZNGHRBDFSXTCIU]:', xs):
+                info ('Error: header-only field %s appears after K:' % xs[1:], warn=0)
+            else:
+                info ('Syntax error at column %d' % err.col, warn=0)
+            raise
+        return vcelyrssss
+
     def parse (s, abc_string, rOpt=False, bOpt=False, fOpt=False):
         abctext = abc_string.replace ('[I:staff ','[I:staff')  # avoid false beam breaks
         s.reset (fOpt)
